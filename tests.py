@@ -4,7 +4,7 @@
 '''Tests for Flask-BCS.'''
 
 import unittest
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from flask import Flask
 from flask_bcs import BCS
 
@@ -41,7 +41,7 @@ class FlaskBCSTestCase(unittest.TestCase):
         filename = 'test_url'
         self.bcs.save(data, filename)
         url = self.bcs.url(filename)
-        resp = urllib.urlopen(url)
+        resp = urllib.request.urlopen(url)
         self.assertEqual(data, resp.read())
 
 if __name__ == '__main__':

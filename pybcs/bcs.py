@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #coding:utf8
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import re, sys, os
 
 import time
@@ -12,9 +12,9 @@ try:
 except:
     import simplejson as json
 
-import common
-from bucket import Bucket
-from httpc import *
+from . import common
+from .bucket import Bucket
+from .httpc import *
 
 class BCS:
     def __init__(self, host, ak , sk, httpclient_class=None):
@@ -91,11 +91,11 @@ class BCS:
         def h(sk, body):
             digest = hmac.new(sk, body, hashlib.sha1).digest()
             t = base64.encodestring(digest)
-            return urllib.quote(t.strip())
+            return urllib.parse.quote(t.strip())
 
         sign = h(self.sk, s)
         url = '%s/%s%s?sign=%s:%s:%s' % (
-                self.host, B, '/' + urllib.quote(O[1:]), 
+                self.host, B, '/' + urllib.parse.quote(O[1:]), 
                 flag, self.ak, sign)
         if T :      url += '&time=%s'   % T;
         if I :      url += '&ip=%s'     % I; 

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 #coding:utf8
-import urllib
-import urllib2
-import httplib
-import cookielib
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
+import http.client
+import http.cookiejar
 import os
 import re
 import sys
@@ -35,9 +35,9 @@ except:
             fh.setFormatter(formatter)
             logger.addHandler(fh)
 
-from cStringIO import StringIO
+from io import StringIO
 #from abc import abstractmethod
-from urlparse import urlparse
+from urllib.parse import urlparse
 from datetime import datetime
 
 class FileSystemException(Exception):

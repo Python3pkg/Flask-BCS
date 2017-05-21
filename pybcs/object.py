@@ -3,10 +3,10 @@
 
 import os
 
-import common
-from common import FileSystemException
-import urllib
-from httpc import *
+from . import common
+from .common import FileSystemException
+import urllib.request, urllib.parse, urllib.error
+from .httpc import *
 
 class NameException(Exception):
     def __init__(self, msg=None):
@@ -39,7 +39,7 @@ class Object:
         self.del_url=bcs.sign('DELETE', bucket_name, object_name)
 
         self.public_get_url = '%s/%s%s' % ( self.bcs.host, bucket_name, 
-                                                  '/' + urllib.quote(object_name[1:]) )
+                                                  '/' + urllib.parse.quote(object_name[1:]) )
 
 
     def __str__(self):

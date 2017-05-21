@@ -2,11 +2,11 @@
 #coding:utf8
 
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
-import common 
-from httpc import *
-from object import Object, Superfile
+from . import common 
+from .httpc import *
+from .object import Object, Superfile
 
 try:
     import json
@@ -80,7 +80,7 @@ class Bucket:
         if prefix:
             params.update ({'prefix': prefix})
 
-        url = self.get_url + '&' + urllib.urlencode(params)
+        url = self.get_url + '&' + urllib.parse.urlencode(params)
 
         rst = self.c.get(url)
         j = json.loads( rst['body'] )

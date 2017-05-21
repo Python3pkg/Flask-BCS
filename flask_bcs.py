@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json
-from urlparse import urljoin
+from urllib.parse import urljoin
 import pybcs
 
 
@@ -20,7 +20,7 @@ class BCS(object):
         self._bucket = bcs.bucket(self._bucket_name)
 
     def save(self, data, filename, allow_referers=[]):
-        filename = unicode(filename)
+        filename = str(filename)
         if not filename.startswith('/'):
             filename = '/' + filename
         obj = self._bucket.object(filename)
@@ -46,14 +46,14 @@ class BCS(object):
         return ret
 
     def delete(self, filename):
-        filename = unicode(filename)
+        filename = str(filename)
         if not filename.startswith('/'):
             filename = '/' + filename
         obj = self._bucket.object(filename)
         return obj.delete()
 
     def url(self, filename):
-        filename = unicode(filename)
+        filename = str(filename)
         if not filename.startswith('/'):
             filename = '/' + filename
         base_url = 'http://' + self._host

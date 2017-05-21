@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 #coding:utf8
-import urllib
-import urllib2
-import httplib
-import cookielib
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
+import http.client
+import http.cookiejar
 import os
 import re
 import sys
@@ -28,9 +28,9 @@ except:
     import logging
     logger = logging.getLogger('pyhttpclient')
 
-from cStringIO import StringIO
-from urlparse import urlparse
-from common import shorten
+from io import StringIO
+from urllib.parse import urlparse
+from .common import shorten
 
 READ_BODY_TO_MEMORY = 1024*1024 # 1M
 
@@ -72,7 +72,7 @@ class HTTPException(Exception):
             body = json.loads(self.body)
             self.errno = body['Error']['code']
             self.errmsg= body['Error']['Message']
-        except Exception,e:
+        except Exception as e:
             self.errno = None
             self.errmsg= None
             
@@ -239,12 +239,12 @@ class PyCurlHTTPC(HTTPC):
         return self._do_request()
 
     def post_multipart(self, url, local_file, filename='file1', fields={}, headers={}):
-        post_info = ' '.join( ['-F "%s=%s"' % (k,urllib.quote(v)) for (k,v) in fields.items()])
+        post_info = ' '.join( ['-F "%s=%s"' % (k,urllib.parse.quote(v)) for (k,v) in list(fields.items())])
         if local_file: 
             post_info += ' -F "%s=@%s" ' % (filename, local_file)
         logger.info('pycurl -X POST %s "%s" ', post_info, url)
         self._init_curl('POST', url, headers)
-        values = fields.items()
+        values = list(fields.items())
         if filename:
             values.append( (filename, (pycurl.FORM_FILE, local_file)) )
         self.c.setopt(pycurl.HTTPPOST, values)
@@ -253,7 +253,7 @@ class PyCurlHTTPC(HTTPC):
     def _do_request(self):
         try:
             self.c.perform()
-        except pycurl.error, e:
+        except pycurl.error as e:
             resp = {'status': 0, 
                     'header' : {}, 
                     'body': '', 
@@ -308,7 +308,7 @@ class PyCurlHTTPC(HTTPC):
         self.c.setopt(pycurl.URL, url)
 
         if headers:
-            headers = ['%s: %s'%(k, v) for (k,v) in headers.items()]
+            headers = ['%s: %s'%(k, v) for (k,v) in list(headers.items())]
             self.c.setopt(pycurl.HTTPHEADER, headers)
 
         self.c.resp_header_buf = StringIO()
@@ -373,7 +373,7 @@ class HttplibHTTPC(HTTPC):
     def request(self, verb, url, data, headers={}):
         try:
             return self._request(verb, url, data, headers)
-        except httplib.IncompleteRead, e:
+        except http.client.IncompleteRead as e:
             rst = { 'status': 0,
                    'header' : {}, 
                    'body': '', 
@@ -384,7 +384,7 @@ class HttplibHTTPC(HTTPC):
     #used by all 
     def send_request(self, verb, url, data, headers={}):
         logger.info('ll httplibcurl -X "%s" "%s" ', verb, url)
-        for (k, v) in headers.items():
+        for (k, v) in list(headers.items()):
             logger.debug('> %s: %s' % (k, v))
         logger.debug('\n')
         logger.debug('> ' + shorten(data, 1024))
@@ -396,9 +396,9 @@ class HttplibHTTPC(HTTPC):
             path+=o.query
 
         if o.scheme == 'https':
-            conn = httplib.HTTPSConnection(host)
+            conn = http.client.HTTPSConnection(host)
         else:
-            conn = httplib.HTTPConnection(host)
+            conn = http.client.HTTPConnection(host)
         conn.request(verb, path, data, headers)
         response = conn.getresponse()
         return response
@@ -469,7 +469,7 @@ class HttplibHTTPC(HTTPC):
             f_list = [f]
         else:
             f_list = []
-        content_type, body = encode_multipart_formdata(fields.items(), f_list)
+        content_type, body = encode_multipart_formdata(list(fields.items()), f_list)
         headersnew = { 'Content-Type' : content_type,
                 'Content-Length': str(len(body))}
         headers.update(headersnew)
